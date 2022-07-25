@@ -11,8 +11,8 @@ import requests
 app = Flask(__name__)
 api = Api(app)
 
-EMAIL_ADDRESS = '*****************'
-EMAIL_PASSWORD = '****************'
+EMAIL_ADDRESS = '***********'
+EMAIL_PASSWORD = '***********'
 
 class Adicionar_Usuario(Resource):
     def post(self):
@@ -74,15 +74,25 @@ class Enviar_email(Resource):
     def post(self):
         validar = Validar_dados.validar_email(request.json['destinatario'])
         if validar == True:
+
             try:
                 consulta = requests.get(request.json['mensagem'])
                 lista = json.loads(consulta.content)
+                corpo_email = f'''
+                           <p> Prezado usuário,</p>
+                           <p> Este email é gerado automaticicamente.</p>
+                           <p> A requisição feita via Json, contem o seguinte HTML: {request.json['mensagem']}.</p>
+                           <p> Que é gerado o seguinte Json:</p>
+                           <p> {lista}
+                           <p> Agradeço a atenção</p>
+                           <p> João Gabriel de Oliveira Ponciano</p>
+                           '''
                 email = EmailMessage()
                 email['Subject']= request.json['assunto']
                 email['From'] = 'jotagepb@gmail.com'
                 email['To'] = request.json['destinatario']
                 email.add_header('Content-Type','text/html')
-                email.set_payload(str(lista))
+                email.set_payload(corpo_email)
                 s = smtplib.SMTP('smtp.gmail.com:587')
                 s.starttls()
                 s.login(EMAIL_ADDRESS,EMAIL_PASSWORD)
