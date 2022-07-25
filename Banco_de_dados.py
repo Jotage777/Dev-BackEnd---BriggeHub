@@ -22,7 +22,7 @@ def add_usuario(nome: str, email: str, telefone: str) -> int:
             cursor.execute('''SELECT email FROM Usuario WHERE email = ?''', (email,))
             result = cursor.fetchone()
             if result is None:
-                cursor.execute('''INSERT INTO Jogos (nome, email,telefone)
+                cursor.execute('''INSERT INTO Usuario (nome, email,telefone)
                 VALUES(?,?,?)''', (nome, email, telefone))
                 conn.commit()
             else:
@@ -58,13 +58,17 @@ def consultar_usuario_id(id) -> int:
             cursor.execute('PRAGMA foreign_keys = ON;')
             cursor.execute('''SELECT * FROM Usuario WHERE id_usuario = ?''', (id,))
             result = cursor.fetchall()
-            id = result[0][0]
-            if id is None:
-                print("Não existe esse username na base de dados")
-                conn.commit()
+            if result is None:
+                return {"message": "Não existe esse usuario na base de dados"}
             else:
-                return id
-                conn.commit()
+                usuario = {}
+                for i in range(len(result)):
+                    usuario['id'] = result[i][0]
+                    usuario['nome']=result[i][1]
+                    usuario['email']=result[i][2]
+                    usuario['telefone']=result[i][3]
+                    return usuario
+
 
 def consultar_todos_usuarios() -> int:
     with sqlite3.connect('BridgeHub.db') as conn:
@@ -72,8 +76,15 @@ def consultar_todos_usuarios() -> int:
             cursor.execute('PRAGMA foreign_keys = ON;')
             cursor.execute('''SELECT * FROM Usuario''')
             result = cursor.fetchall()
-            return result
-            conn.commit()
+            todos_usuarios = {}
+            for i in range(len(result)):
+                usuario = {}
+                usuario['nome'] = result[i][1]
+                usuario['email'] = result[i][2]
+                usuario['telefone'] = result[i][3]
+                todos_usuarios['id: '+str(result[i][0])] = usuario
+
+            return todos_usuarios
 
 def deletar_usuario(id)->int:
     with sqlite3.connect('BridgeHub.db') as conn:
@@ -82,6 +93,6 @@ def deletar_usuario(id)->int:
                 cursor.execute('''DELETE FROM Usuario WHERE id_usuario = ?''', (id,))
                 conn.commit()
             except:
-                print("erro")
+                return {"message": "Ocorreu um erro"}
             finally:
-                print("Registro excluido")
+                return {"message": "Usuario excluido"}

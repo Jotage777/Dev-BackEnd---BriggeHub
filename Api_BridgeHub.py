@@ -8,45 +8,43 @@ api = Api(app)
 
 class Adicionar_Usuario(Resource):
     def post(self):
-        try:
-            nome = Validar_dados.validar_nome(request.json['nome'])
-            email = Validar_dados.validar_email(request.json['email'])
-            telefone = Validar_dados.valida_telefone(request.json['telefone'])
-            if (nome == True) and (email== True ) and (telefone==True):
-                Banco_de_dados.add_usuario(request.json['nome'],request.json['email'], request.json['telefone'])
-            else:
-                abort(404, message='Os dados foram passados na formataçao errada, mande novamente')
-            return {"message": "Usuario adicionado"}
-        except:
-            abort(404, message='Ocorreu um erro')
+        nome = Validar_dados.validar_nome(request.json['nome'])
+        email = Validar_dados.validar_email(request.json['email'])
+        telefone = Validar_dados.valida_telefone(request.json['telefone'])
 
+        if (nome == True) and (email== True ) and (telefone==True):
+            Banco_de_dados.add_usuario(request.json['nome'],request.json['email'], request.json['telefone'])
 
+        else:
+            abort(404, message='Os dados foram passados na formataçao errada, mande novamente')
+
+        return {"message": "Usuario adicionado"}
 
 class Editar_Usuario(Resource):
     def post(self,id):
-        try:
             nome = Validar_dados.validar_nome(request.json['nome'])
             email = Validar_dados.validar_email(request.json['email'])
             telefone = Validar_dados.valida_telefone(request.json['telefone'])
+
             if (nome == True) and (email == True) and (telefone == True):
                 Banco_de_dados.atulizar_usuario(request.json['nome'],id,1)
                 Banco_de_dados.atulizar_usuario(request.json['email'], id, 2)
                 Banco_de_dados.atulizar_usuario(request.json['telefone'], id, 3)
+
             else:
                 abort(404, message='Os dados foram passados na formataçao errada, mande novamente')
 
             return {"message": "Usuario atualizado"}
-        except:
-            abort(404, message='Ocorreu um erro')
 
 
 class Deletar_usuario(Resource):
-    def get(self,id):
+    def delete(self,id):
         try:
-            Banco_de_dados.deletar_usuario(id)
-            return {"message:Usuario deletado"}
+            mensagem=Banco_de_dados.deletar_usuario(id)
+            return mensagem
         except:
             abort(404, message='Usuario não deletado, verifique se o id é existente')
+
 class Consultar_todos_usuarios(Resource):
     def get(self):
         try:
@@ -58,7 +56,10 @@ class Consultar_usuario_especifico(Resource):
     def get(self,id):
         try:
             usuario = Banco_de_dados.consultar_usuario_id(id)
-            return usuario
+            if usuario is None:
+                return {"message": "Usuario não existente"}
+            else:
+                return usuario
         except:
             abort(404, message='Ocorreu um erro')
 
