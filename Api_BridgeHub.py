@@ -11,8 +11,8 @@ import requests
 app = Flask(__name__)
 api = Api(app)
 
-EMAIL_ADDRESS = '*******************'
-EMAIL_PASSWORD = '******************'
+EMAIL_ADDRESS = '*****************'
+EMAIL_PASSWORD = '****************'
 
 class Adicionar_Usuario(Resource):
     def post(self):
@@ -72,22 +72,26 @@ class Consultar_usuario_especifico(Resource):
             abort(404, message='Ocorreu um erro')
 class Enviar_email(Resource):
     def post(self):
-        try:
-            consulta = requests.get(request.json['mensagem'])
-            lista = json.loads(consulta.content)
-            email = EmailMessage()
-            email['Subject']= request.json['assunto']
-            email['From'] = 'jotagepb@gmail.com'
-            email['To'] = request.json['destinatario']
-            email.add_header('Content-Type','text/html')
-            email.set_payload(str(lista))
-            s = smtplib.SMTP('smtp.gmail.com:587')
-            s.starttls()
-            s.login(EMAIL_ADDRESS,EMAIL_PASSWORD)
-            s.sendmail( email['From'],email['To'],email.as_string().encode('utf-8'))
-            return {"message": "Email enviado com sucesso"}
-        except:
-            abort(404, message='Ocorreu um erro')
+        validar = Validar_dados.validar_email(request.json['destinatario'])
+        if validar == True:
+            try:
+                consulta = requests.get(request.json['mensagem'])
+                lista = json.loads(consulta.content)
+                email = EmailMessage()
+                email['Subject']= request.json['assunto']
+                email['From'] = 'jotagepb@gmail.com'
+                email['To'] = request.json['destinatario']
+                email.add_header('Content-Type','text/html')
+                email.set_payload(str(lista))
+                s = smtplib.SMTP('smtp.gmail.com:587')
+                s.starttls()
+                s.login(EMAIL_ADDRESS,EMAIL_PASSWORD)
+                s.sendmail( email['From'],email['To'],email.as_string().encode('utf-8'))
+                return {"message": "Email enviado com sucesso"}
+            except:
+                abort(404, message='Ocorreu um erro')
+        else:
+            abort(404, message='Os dados foram passados na formataçao errada, mande novamente')
 
 api.add_resource(Adicionar_Usuario, "/bridgehub/add_user")
 api.add_resource(Editar_Usuario, "/bridgehub/edit_user/<int:id>")
