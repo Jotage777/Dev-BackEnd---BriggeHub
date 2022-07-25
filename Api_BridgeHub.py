@@ -1,10 +1,18 @@
+import json
+import smtplib
+
 from flask import Flask, request
 from flask_restful import Resource, Api, abort
+from email.message import EmailMessage
 import os
 import Banco_de_dados
 import Validar_dados
+import requests
 app = Flask(__name__)
 api = Api(app)
+
+EMAIL_ADDRESS = '*******************'
+EMAIL_PASSWORD = '******************'
 
 class Adicionar_Usuario(Resource):
     def post(self):
@@ -62,13 +70,31 @@ class Consultar_usuario_especifico(Resource):
                 return usuario
         except:
             abort(404, message='Ocorreu um erro')
+class Enviar_email(Resource):
+    def post(self):
+        try:
+            consulta = requests.get(request.json['mensagem'])
+            lista = json.loads(consulta.content)
+            email = EmailMessage()
+            email['Subject']= request.json['assunto']
+            email['From'] = 'jotagepb@gmail.com'
+            email['To'] = request.json['destinatario']
+            email.add_header('Content-Type','text/html')
+            email.set_payload(str(lista))
+            s = smtplib.SMTP('smtp.gmail.com:587')
+            s.starttls()
+            s.login(EMAIL_ADDRESS,EMAIL_PASSWORD)
+            s.sendmail( email['From'],email['To'],email.as_string().encode('utf-8'))
+            return {"message": "Email enviado com sucesso"}
+        except:
+            abort(404, message='Ocorreu um erro')
 
 api.add_resource(Adicionar_Usuario, "/bridgehub/add_user")
 api.add_resource(Editar_Usuario, "/bridgehub/edit_user/<int:id>")
 api.add_resource(Deletar_usuario, "/bridgehub/delete_user/<int:id>")
 api.add_resource(Consultar_todos_usuarios, "/bridgehub/users")
 api.add_resource(Consultar_usuario_especifico, "/bridgehub/users/<int:id>")
-
+api.add_resource(Enviar_email,"/bridgehub/send_email")
 create_db = not os.path.isfile('BridgeHub.db')
 if create_db:
     Banco_de_dados.criar_BD()
