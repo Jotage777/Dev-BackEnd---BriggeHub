@@ -16,6 +16,6 @@
 O objetivo desse projeto é desenvolver uma api em flask para realização do teste pratico da empressa Bridgehub
 
 ## Tecnologias que serão utilizadas
--Python
--SqLlite
--Flask
+- Python
+- SqLlite
+- Flask
