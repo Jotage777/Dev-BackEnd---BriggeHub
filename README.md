@@ -1,4 +1,4 @@
-# Dev-BackEnd---BriggeHub
+# Dev-BackEnd---BridgeHub
 
 ## 👤Desenvolvedor
 
