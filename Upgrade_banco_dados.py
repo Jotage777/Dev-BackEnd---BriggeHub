@@ -5,10 +5,10 @@ def upgrade() -> None:
     with sqlite3.connect('BridgeHub.db') as conn:
         with closing(conn.cursor()) as cursor:
             cursor.execute('PRAGMA foreign_keys = ON;')
-
             cursor.execute('''
                 CREATE TABLE Endereco(
-                    cep VARCHAR (8)primary key  ,
+                    id_endereco INTEGER primary key AUTOINCREMENT, 
+                    cep VARCHAR (8),
                     lougradoro VARCHAR (45) ,
                     complemento VARCHAR (45) ,
                     bairro VARCHAR (45) ,
@@ -22,5 +22,4 @@ def upgrade() -> None:
                     FOREIGN KEY(fk_id_usuario) REFERENCES Usuario (id_usuario)
                     )''')
             conn.commit()
-
 
